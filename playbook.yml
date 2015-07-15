@@ -1,14 +1,44 @@
 - hosts: all
-  sudo: yes
   tasks:
   - name: ensure HTTPS support for APT is installed
+    sudo: yes
     apt:  name=apt-transport-https state=present
 
-  - name: ensure ansible, vagrant and related tools are installed
+#Whenever mitchellh implements https://github.com/mitchellh/vagrant-installers/issues/12
+  - name: Download latest vagrant
+    sudo: yes
+    get_url: url=https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.3_x86_64.deb dest=/tmp/vagrant.deb sha256sum=755ab4a3e4e076c96cb260bf67c7f08b8186a2340d7dc2f1df98d7fc7ad3e27d
+
+  - name: Install downloaded vagrant
+    sudo: yes
+    apt: deb=/tmp/vagrant.deb state=present
+
+  - name: Add third party repos
+    sudo: yes
+    apt_repository: repo={{ item }} state=present update_cache=yes
+    with_items:
+      - "ppa:ansible/ansible" # Ansible
+
+  - name: ensure core server packages and utilities are installed
+    sudo: yes
     apt:  name={{ item }} state=present
     with_items:
-      - vagrant 
+      - curl
+      - git
+      - screen
+      - finger
       - ansible
 
-#  - name: perform an aptitude update and upgrade
-#    apt:  update_cache=yes upgrade=dist
+  - name: Save the SSH username
+    sudo: no
+    set_fact:
+      ssh_user_id: "{{ansible_user_id}}"
+
+  - name: Save the local full name
+    sudo: no
+    local_action: command ./extract_full_name.sh
+    register: full_name
+
+  - name: Identify yourself
+    sudo: yes
+    user: user={{ssh_user_id}} comment="{{full_name.stdout}}"
