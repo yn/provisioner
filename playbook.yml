@@ -1,0 +1,14 @@
+- hosts: all
+  sudo: yes
+  tasks:
+  - name: ensure HTTPS support for APT is installed
+    apt:  name=apt-transport-https state=present
+
+  - name: ensure ansible, vagrant and related tools are installed
+    apt:  name={{ item }} state=present
+    with_items:
+      - vagrant 
+      - ansible
+
+#  - name: perform an aptitude update and upgrade
+#    apt:  update_cache=yes upgrade=dist

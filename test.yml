@@ -1,0 +1,19 @@
+- hosts: all
+  tasks:
+  - name: Save the local full name
+    sudo: no
+    local_action: command ./extract_full_name.sh
+    register: full_name
+
+  - name: Save the SSH username
+    sudo: no
+    set_fact:
+      ssh_user_id: "{{ansible_user_id}}"
+
+  - name: Identify yourself
+    sudo: yes
+    user: user={{ssh_user_id}} comment="{{full_name.stdout}}"
+
+  - name: ensure HTTPS support for APT is installed
+    sudo: yes
+    apt:  name=apt-transport-https state=present
