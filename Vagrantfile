@@ -20,6 +20,7 @@ Vagrant.configure(2) do |config|
     aws.secret_access_key = ENV["AWS_SECRET_ACCESS_KEY"]
     aws.security_groups = ENV["AWS_SECURITY_GROUPS"].split(",") if ENV["AWS_SECURITY_GROUPS"]
     aws.region = "us-west-2"
+    aws.tags = {Name: "yn-provisioner", Note: "Yuri's box to provision other boxes"}
     aws.region_config "us-west-2" do |region|
       # region.ami = 'ami-355c5a05' hvm-instance trusty
       region.ami = 'ami-154a4a25' # hvm-instance vivid
@@ -33,7 +34,6 @@ Vagrant.configure(2) do |config|
   config.vm.provision "ansible" do |ansible|
     ansible.verbose  = "vvvv"
     ansible.playbook = "playbook.yml"
-    ansible.raw_arguments = ['-e pipelining=True']
     ansible.extra_vars = {
       ansible_connection: 'ssh',
       ansible_ssh_args: '-o ForwardAgent=yes'
