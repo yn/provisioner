@@ -19,6 +19,10 @@
     with_items:
       - "ppa:ansible/ansible" # Ansible
 
+  # Need to come up with a way to check that this is not necessary to do
+  # - name: Install vagrant AWS plugin
+  #   command: vagrant plugin install vagrant-aws
+
   - name: ensure core server packages and utilities are installed
     sudo: yes
     apt:  name={{ item }} state=present
